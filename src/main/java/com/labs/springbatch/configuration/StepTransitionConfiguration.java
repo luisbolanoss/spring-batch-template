@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableBatchProcessing
-public class JobConfiguration {
+public class StepTransitionConfiguration {
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
@@ -28,16 +28,42 @@ public class JobConfiguration {
                 .tasklet(new Tasklet() {
                     @Override
                     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
-                        System.out.println("Hello World!");
+                        System.out.println("This is step 1");
                         return RepeatStatus.FINISHED;
                     }
                 }).build();
     }
 
     @Bean
-    public Job helloWorldJob() {
+    public Step step2() {
+        return stepBuilderFactory.get("step2")
+                .tasklet(new Tasklet() {
+                    @Override
+                    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
+                        System.out.println("This is step 2");
+                        return RepeatStatus.FINISHED;
+                    }
+                }).build();
+    }
+
+    @Bean
+    public Step step3() {
+        return stepBuilderFactory.get("step3")
+                .tasklet(new Tasklet() {
+                    @Override
+                    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
+                        System.out.println("This is step 3");
+                        return RepeatStatus.FINISHED;
+                    }
+                }).build();
+    }
+
+    @Bean
+    public Job transitionJobSimpleNext() {
         return jobBuilderFactory.get("helloWorldJob")
-                .start(step1())
+                .start(step1()).on("COMPLETED").to(step2())
+                .from(step2()).on("COMPLETED").to(step3())
+                .from(step3()).end()
                 .build();
     }
 }
