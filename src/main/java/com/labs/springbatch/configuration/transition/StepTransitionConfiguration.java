@@ -1,4 +1,4 @@
-package com.labs.springbatch.configuration;
+package com.labs.springbatch.configuration.transition;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
